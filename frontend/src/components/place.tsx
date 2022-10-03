@@ -1,76 +1,34 @@
+import moment from 'moment';
+import 'moment/locale/hu';
 import { useEffect, useState } from 'react';
-const apiKey = process.env.REACT_APP_API_KEY;
 
-interface CurrentWeatherData {
-  coord: {
-    lon: number;
-    lat: number;
-  };
-  weather: {
-    id: number;
-    main: string;
-    description: string;
-    icon: string;
-  };
-  base: string;
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max: number;
-    pressure: number;
-    humidity: number;
-    sea_level: number;
-    grdn_level: number;
-  };
-  visibility: number;
-  wind: {
-    speed: number;
-    deg: number;
-    gust: number;
-  };
-  coluds: {
-    all: number;
-  };
-  rain: {
-    '1h': number;
-    '3h': number;
-  };
-  snow: {
-    '1h': number;
-    '3h': number;
-  };
-  dt: number;
-  sys: {
-    country: string;
-    sunrise: number;
-    sunset: number;
-  };
-  timezone: number;
-  id: number;
-  name: string;
-  cod: number;
+interface PlaceProps {
+  lat: any;
+  lon: any;
 }
 
-export default function Place() {
-  const [data, setData] = useState<CurrentWeatherData>();
+export default function Place(props: PlaceProps) {
+  const [data, setData] = useState<any>();
 
   useEffect(() => {
     fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=48.10&lon=20.79&units=metric&appid=${apiKey}`
+      `https://api.open-meteo.com/v1/forecast?latitude=${props.lat}&longitude=${props.lon}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,surface_pressure,windspeed_10m,winddirection_10m,windgusts_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant,shortwave_radiation_sum&current_weather=true&timezone=auto`
     )
       .then((res) => res.json())
-      .then((json) => setData(json))
+      .then((json) => {
+        console.log(json);
+        setData(json);
+      })
       .catch((error) => console.log(error));
   }, []);
 
   return (
     <>
-      <div>Város: {data?.name}</div>
-      <div>Altuális hőmérséklet: {data?.main.temp} °C</div>
-      <div></div>
-      <div></div>
-      <div></div>
+      <div>City: {}</div>
+      <div>Actual temperature: {data?.current_weather.temperature} °C</div>
+
+      <div>Sunrise: {moment(data?.daily.sunrise[0]).format('LT')}</div>
+      <div>Sunset: {moment(data?.daily.sunset[0]).format('LT')}</div>
     </>
   );
 }
